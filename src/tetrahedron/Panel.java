@@ -98,11 +98,18 @@ public class Panel {
                         0, -Math.sin(pitch), Math.cos(pitch)
                 });
                 
-                
         		Matrix3 transform = headingTransform.multiply(pitchTransform);
+                
+                // z-buffer -> maneja la profundidad/distancia de los pixeles en pantalla
+                double[] zBuffer = new double[img.getWidth() * img.getHeight()];
+	             
+	            for (int q = 0; q < zBuffer.length; q++) {
+	                zBuffer[q] = Double.NEGATIVE_INFINITY;
+	            }
                
-                g2.setColor(Color.WHITE);                
-                for (Triangulo t : tris) {
+               
+               g2.setColor(Color.WHITE);                
+               for (Triangulo t : tris) {
                 	Vertice v1 = transform.transform(t.v1);
                 	Vertice v2 = transform.transform(t.v2);
                 	Vertice v3 = transform.transform(t.v3);
@@ -137,9 +144,16 @@ public class Panel {
                             boolean V1 = sameSide(v1,v2,v3,p);
                             boolean V2 = sameSide(v2,v3,v1,p);
                             boolean V3 = sameSide(v3,v1,v2,p);
-                            if (V3 && V2 && V1) {
-                            	//System.out.println("Setting pixel at (" + x + ", " + y + ")");
-                                img.setRGB(x, y, t.color.getRGB());
+                            if (V3 && V2 && V1) 
+                            {
+                            	double depth = v1.z + v2.z + v3.z;
+                                int zIndex = y * img.getWidth() + x;
+                                if (zBuffer[zIndex] < depth) 
+                                {
+	                            	//System.out.println("Setting pixel at (" + x + ", " + y + ")");
+	                                img.setRGB(x, y, t.color.getRGB());
+	                                zBuffer[zIndex] = depth;
+                                }
                             }
                         }
                     }
@@ -153,8 +167,8 @@ public class Panel {
         renderPanel.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                double yi = 180.0 / renderPanel.getHeight();
-                double xi = 180.0 / renderPanel.getWidth();
+                double yi = 360.0 / renderPanel.getHeight();
+                double xi = 360.0 / renderPanel.getWidth();
                 x[0] = (int) (e.getX() * xi);
                 y[0] = -(int) (e.getY() * yi);
                 renderPanel.repaint();
