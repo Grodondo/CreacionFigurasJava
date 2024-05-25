@@ -19,7 +19,8 @@ public class Panel {
 
     private static BufferedImage img;
 	
-    static boolean sameSide(Vertice A, Vertice B, Vertice C, Vertice p){
+    static boolean sameSide(Vertice A, Vertice B, Vertice C, Vertice p)
+    {
     	Vertice V1V2 = new Vertice(B.x - A.x,B.y - A.y,B.z - A.z);
     	Vertice V1V3 = new Vertice(C.x - A.x,C.y - A.y,C.z - A.z);
     	Vertice V1P = new Vertice(p.x - A.x,p.y - A.y,p.z - A.z);
@@ -32,11 +33,23 @@ public class Panel {
         return V1V2CrossV1V3 * V1V2CrossP >= 0;
     }
     
-    public static Color getShade(Color color, double shade) {
-        int r = (int) (color.getRed() * shade);
-        int g = (int) (color.getGreen() * shade);
-        int b = (int) (color.getBlue() * shade);
+    public static Color getShade(Color color, double shade) 
+    {
+    		
+        double redLinear = Math.pow(color.getRed(), 2.2) * shade;
+        double greenLinear = Math.pow(color.getGreen(), 2.2) * shade;
+        double blueLinear = Math.pow(color.getBlue(), 2.2) * shade;
+
+        int r = (int) Math.pow(redLinear, 1 / 2.2);
+        int g = (int) Math.pow(greenLinear, 1 / 2.2);
+        int b = (int) Math.pow(blueLinear, 1 / 2.2);
+
         return new Color(r, g, b);
+ 
+//        int r = (int) (color.getRed() * shade);
+//        int g = (int) (color.getGreen() * shade);
+//        int b = (int) (color.getBlue() * shade);
+//        return new Color(r, g, b);
     }
 	
 	public static void main(String[] args) {
