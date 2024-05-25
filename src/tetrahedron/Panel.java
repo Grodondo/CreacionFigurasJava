@@ -31,6 +31,13 @@ public class Panel {
 
         return V1V2CrossV1V3 * V1V2CrossP >= 0;
     }
+    
+    public static Color getShade(Color color, double shade) {
+        int r = (int) (color.getRed() * shade);
+        int g = (int) (color.getGreen() * shade);
+        int b = (int) (color.getBlue() * shade);
+        return new Color(r, g, b);
+    }
 	
 	public static void main(String[] args) {
 		
@@ -121,12 +128,31 @@ public class Panel {
                     v3.x += getWidth() / 2.0;
                     v3.y += getHeight() / 2.0;
                     
-//                    Path2D path = new Path2D.Double();
-//                    path.moveTo(v1.x, v1.y);
-//                    path.lineTo(v2.x, v2.y);
-//                    path.lineTo(v3.x, v3.y);
-//                    path.closePath();
-//                    g2.draw(path);
+                    
+                    // Se aplican las sombras
+                    Vertice ab = new Vertice(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
+                    Vertice ac = new Vertice(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
+                    // Normal vector
+                    Vertice norm = new Vertice(
+                         ab.y * ac.z - ab.z * ac.y,
+                         ab.z * ac.x - ab.x * ac.z,
+                         ab.x * ac.y - ab.y * ac.x
+                    );
+                    // Se normaliza el vector
+                    double normalLength = Math.sqrt(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+                    norm.x /= normalLength;
+                    norm.y /= normalLength;
+                    norm.z /= normalLength;
+                    
+                    // coseno entre el vector normal del triangulo y la direccion de la luz
+                    double angleCos = Math.abs(norm.z);
+                    
+                    Path2D path = new Path2D.Double();
+                    path.moveTo(v1.x, v1.y);
+                    path.lineTo(v2.x, v2.y);
+                    path.lineTo(v3.x, v3.y);
+                    path.closePath();
+                    g2.draw(path);
                     
                     // Calcula el rango a ser procesado
                     int minX = (int) Math.max(0, Math.ceil(Math.min(v1.x, Math.min(v2.x, v3.x))));
@@ -150,8 +176,8 @@ public class Panel {
                                 int zIndex = y * img.getWidth() + x;
                                 if (zBuffer[zIndex] < depth) 
                                 {
-	                            	//System.out.println("Setting pixel at (" + x + ", " + y + ")");
-	                                img.setRGB(x, y, t.color.getRGB());
+	                            	
+	                                img.setRGB(x, y, getShade(t.color, angleCos).getRGB());
 	                                zBuffer[zIndex] = depth;
                                 }
                             }
